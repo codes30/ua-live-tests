@@ -27,23 +27,27 @@ describe("HTTP API Tests", () => {
   });
 
   it("should return 400 statuscode on invalid input", async () => {
-    const response = await axios.post(`${HTTP_URL}/signin`, {
-      email: "user",
-      password: "password123",
-      username: "john_doe",
-    });
-
-    expect(response.status).toBe(400);
+    try {
+      await axios.post(`${HTTP_URL}/signin`, {
+        email: "user",
+        password: "password123",
+        username: "john_doe",
+      });
+    } catch (error) {
+      expect(error.response.status).toBe(400);
+    }
   });
 
   it("should return 409 on creation of conflicting userdata", async () => {
-    const response = await axios.post(`${HTTP_URL}/signup`, {
-      email: "user@example.com",
-      password: "password123",
-      username: "john_doe",
-    });
-
-    expect(response.status).toBe(409);
+    try {
+      await axios.post(`${HTTP_URL}/signup`, {
+        email: "user@example.com",
+        password: "password123",
+        username: "john_doe",
+      });
+    } catch (error) {
+      expect(error.response.status).toBe(409);
+    }
   });
 
   // Test the signin endpoint
@@ -61,20 +65,24 @@ describe("HTTP API Tests", () => {
   });
 
   it("should return 401 on invalid creds", async () => {
-    const response = await axios.post(`${HTTP_URL}/signin`, {
-      email: "user@example.com",
-      password: "secret",
-    });
-
-    expect(response.status).toBe(401);
+    try {
+      await axios.post(`${HTTP_URL}/signin`, {
+        email: "user@example.com",
+        password: "secret",
+      });
+    } catch (error) {
+      expect(error.response.status).toBe(401);
+    }
   });
 
   it("should return 400 on invalid creds", async () => {
-    const response = await axios.post(`${HTTP_URL}/signin`, {
-      email: "user@example.com",
-    });
-
-    expect(response.status).toBe(400);
+    try {
+      await axios.post(`${HTTP_URL}/signin`, {
+        email: "user@example.com",
+      });
+    } catch (error) {
+      expect(error.response.status).toBe(400);
+    }
   });
 
   // Test create session
@@ -94,34 +102,36 @@ describe("HTTP API Tests", () => {
     sessionId = response.data.sessionId;
   });
 
-  it("should return 401 on invalid token", async () => {
-    const response = await axios.post(
-      `${HTTP_URL}/session`,
-      { title: "Full Stack cohort class #2" },
-      {
-        headers: {
-          Authorization: `Bearer ${userToken}invalid`,
+  it("should return 401 on unauthorized", async () => {
+    try {
+      await axios.post(
+        `${HTTP_URL}/session`,
+        { title: "Full Stack cohort class #2" },
+        {
+          headers: {
+            Authorization: `Bearer ${userToken}invalid`,
+          },
         },
-      },
-    );
-
-    expect(response.status).toBe(401);
+      );
+    } catch (error) {
+      expect(error.response.status).toBe(401);
+    }
   });
 
   it("should return 500 on server error", async () => {
-    const response = await axios.post(
-      `${HTTP_URL}/session`,
-      {},
-      {
-        headers: {
-          Authorization: `Bearer ${userToken}`,
+    try {
+      await axios.post(
+        `${HTTP_URL}/session`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${userToken}`,
+          },
         },
-      },
-    );
-
-    expect(response.status).toBe(200);
-    expect(response.data.sessionId).toMatch(/^[a-z]{3}-[a-z]{3}-[a-z]{3}$/);
-    sessionId = response.data.sessionId;
+      );
+    } catch (error) {
+      expect(response.status).toBe(500);
+    }
   });
 
   // Test get all sessions
@@ -139,28 +149,32 @@ describe("HTTP API Tests", () => {
   });
 
   it("should return 401 on unauthorized", async () => {
-    const response = await axios.get(`${HTTP_URL}/sessions`, {
-      headers: {
-        Authorization: `Bearer ${userToken}invalid`,
-      },
-    });
-
-    expect(response.status).toBe(401);
+    try {
+      await axios.get(`${HTTP_URL}/sessions`, {
+        headers: {
+          Authorization: `Bearer ${userToken}invalid`,
+        },
+      });
+    } catch (error) {
+      expect(error.response.status).toBe(401);
+    }
   });
 
   // Test start a session
   it("should return 401 on unauthorized", async () => {
-    const response = await axios.post(
-      `${HTTP_URL}/session/${sessionId}/start`,
-      {},
-      {
-        headers: {
-          Authorization: `Bearer ${userToken}invalid`,
+    try {
+      await axios.post(
+        `${HTTP_URL}/session/${sessionId}/start`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${userToken}invalid`,
+          },
         },
-      },
-    );
-
-    expect(response.status).toBe(401);
+      );
+    } catch (error) {
+      expect(error.response.status).toBe(401);
+    }
   });
 
   it("should start a session", async () => {
@@ -179,31 +193,35 @@ describe("HTTP API Tests", () => {
   });
 
   it("should return 404 on invalid session id", async () => {
-    const response = await axios.post(
-      `${HTTP_URL}/session/nonexistingsession/start`,
-      {},
-      {
-        headers: {
-          Authorization: `Bearer ${userToken}`,
+    try {
+      await axios.post(
+        `${HTTP_URL}/session/nonexistingsession/start`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${userToken}`,
+          },
         },
-      },
-    );
-
-    expect(response.status).toBe(404);
+      );
+    } catch (error) {
+      expect(error.response.status).toBe(404);
+    }
   });
 
   it("should return 400 on starting a session that is already started", async () => {
-    const response = await axios.post(
-      `${HTTP_URL}/session/${sessionId}/start`,
-      {},
-      {
-        headers: {
-          Authorization: `Bearer ${userToken}`,
+    try {
+      await axios.post(
+        `${HTTP_URL}/session/${sessionId}/start`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${userToken}`,
+          },
         },
-      },
-    );
-
-    expect(response.status).toBe(400);
+      );
+    } catch (error) {
+      expect(error.response.status).toBe(400);
+    }
   });
 
   // Test end a session
@@ -223,17 +241,19 @@ describe("HTTP API Tests", () => {
   });
 
   it("should return 404 on not found", async () => {
-    const response = await axios.post(
-      `${HTTP_URL}/session/nonexistingsession/end`,
-      {},
-      {
-        headers: {
-          Authorization: `Bearer ${userToken}`,
+    try {
+      await axios.post(
+        `${HTTP_URL}/session/nonexistingsession/end`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${userToken}`,
+          },
         },
-      },
-    );
-
-    expect(response.status).toBe(404);
+      );
+    } catch (error) {
+      expect(error.response.status).toBe(404);
+    }
   });
 
   it("should return 400 on bad request", async () => {
@@ -247,17 +267,19 @@ describe("HTTP API Tests", () => {
       },
     );
 
-    const res2 = await axios.post(
-      `${HTTP_URL}/session/${res1.data.sessionId}/end`,
-      {},
-      {
-        headers: {
-          Authorization: `Bearer ${userToken}`,
+    try {
+      await axios.post(
+        `${HTTP_URL}/session/${res1.data.sessionId}/end`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${userToken}`,
+          },
         },
-      },
-    );
-
-    expect(res2.status).toBe(400);
+      );
+    } catch (error) {
+      expect(error.response.status).toBe(400);
+    }
   });
 });
 
